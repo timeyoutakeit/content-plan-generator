@@ -28,7 +28,8 @@ export async function POST(req: Request) {
     - The goal of how-to content is for users to achieve a specific task, they do not need to learn about the product itself. How-to content is usually a series of steps that help users learn how to use the product for a specific task.
     - The goal of reference content is to help users look up information about the product. Reference content is usually a list of features and their descriptions, often written API reference style.
     The content plan does not need to include all the content types, but it should be a good mix of them as necessary. They should be detailed enough that any other technical writer can write the content, but not too detailed that they are overwhelming.
-    `;
+    
+    Add a relevant emoji to each major heading to make it more engaging.`;
 
     const response = await ai.models.generateContentStream({
         model: "gemini-2.5-flash",
