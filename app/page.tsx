@@ -72,7 +72,7 @@ export default function Home() {
         disabled={loading}
         className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? "Generating..." : "Generate"}
+        {loading ? `Generating${dots}` : "Generate"}
       </button>
 
       {result && (
