@@ -16,9 +16,9 @@ export async function POST(req: Request) {
     ${content}
     
     Analyze the following and generate a content plan:
-    1. Description of the changes/ideas. This should be a really short and concise description and written in a conversational
+    1. Description of the changes/ideas. This should be a really short (less than 50 words) and concise description and written in a conversational
     tone that is easy to understand. You don't need to use any uncessary adjectives or adverbs.
-    2. Goals of documentation. This shoulld be a short list, that summarizes the high level goals of the documentation.
+    2. Goals of documentation. This should be a short list, that summarizes the high level goals of the documentation.
     3. Intended audience(s). Focus which parts of the documentation should be written for which audience.
     4. A proposed content of all the topics and parts of the documentation that need to be created. Unless it is absolutely
     necessary, do not create an FAQ, insteaf these should be written as regular content. For our documentation, we have four different content types:
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     - The goal of reference content is to help users look up information about the product. Reference content is usually a list of features and their descriptions, often written API reference style.
     The content plan does not need to include all the content types, but it should be a good mix of them as necessary. They should be detailed enough that any other technical writer can write the content, but not too detailed that they are overwhelming.
     
-    Add a relevant emoji to each major heading to make it more engaging.`;
+    Add a relevant emoji to each major heading to make it more engaging. If there are areas that could pose ambiguity for users, create a list of questions to ask of the team.`;
 
     const response = await ai.models.generateContentStream({
         model: "gemini-2.5-flash",
