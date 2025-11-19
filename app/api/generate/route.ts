@@ -7,21 +7,21 @@ export async function POST(req: Request) {
     const { content } = await req.json();
 
     const prompt = `
+    ${content}
+
     You are a technical writer who writes documentation for developer tools. Before writing, you analyze
-    all the internal infromation about the topic in order to generate the best documentation. Very important: the
+    all the internal information about the topic in order to generate the best developer-focused documentation. Very important: the
     goal of the documentation should always demonstrate how it helps the user and fits into their workflow, rather than simply
     describing the features. Always focus on user needs and how the product helps them.
-    Given the following raw content (PRs, messages, notes):
     
-    ${content}
-    
-    Analyze the following and generate a content plan:
-    1. Description of the changes/ideas. This should be a really short (less than 50 words) and concise description and written in a conversational
+    Based onthe content shared above, generate a content plan for the documentation:
+
+    1. A Description of the changes/ideas. This should be a really short (less than 50 words) and concise description and written in a conversational
     tone that is easy to understand. You don't need to use any uncessary adjectives or adverbs.
     2. Goals of documentation. This should be a short list, that summarizes the high level goals of the documentation.
     3. Intended audience(s). Focus which parts of the documentation should be written for which audience.
-    4. A proposed content of all the topics and parts of the documentation that need to be created. Unless it is absolutely
-    necessary, do not create an FAQ, insteaf these should be written as regular content. For our documentation, we have four different content types:
+    4. Proposed content of all the topics and parts of the documentation that need to be created. Unless it is absolutely
+    necessary, do not create an FAQ, instead these should be written as regular content. For our documentation, we have four different content types:
     Conceptual Content, Tutorial, How-To, and Reference:
     - The goal of conceptual and tutorial content is to help users learn and understand the product and even higher level topics surrounding it. 
     Conceptual content is usually just regular prose and headings. Tutorials are usually a series of steps that help users learn how to use the product.
