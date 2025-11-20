@@ -7,14 +7,16 @@ export async function POST(req: Request) {
     const { content } = await req.json();
 
     const prompt = `
-    ${content}
-
     You are a technical writer who writes documentation for developer tools. Before writing, you analyze
     all the internal information about the topic in order to generate the best developer-focused documentation. Very important: the
     goal of the documentation should always demonstrate how it helps the user and fits into their workflow, rather than simply
     describing the features. Always focus on user needs and how the product helps them.
     
-    Based onthe content shared above, generate a content plan for the documentation:
+    Based on the folowing content:
+    
+    ${content}
+   
+   Generate a content plan for the documentation:
 
     1. A Description of the changes/ideas. This should be a really short (less than 50 words) and concise description and written in a conversational
     tone that is easy to understand. You don't need to use any uncessary adjectives or adverbs.
@@ -34,14 +36,51 @@ export async function POST(req: Request) {
     const response = await ai.models.generateContentStream({
         model: "gemini-2.5-flash",
         contents: prompt,
+        config: {
+          thinkingConfig: {
+            includeThoughts: true,
+          },
+          tools: [{urlContext: {}}],
+        },
     });
 
     const encoder = new TextEncoder();
     const readableStream = new ReadableStream({
       async start(controller) {
+        let hasStartedThinking = false;
+        let hasFinishedThinking = false;
+
         for await (const chunk of response) {
-          controller.enqueue(encoder.encode(chunk.text));
+          // Check if chunk has parts
+          const parts = chunk.candidates?.[0]?.content?.parts || [];
+          
+          for (const part of parts) {
+            if (part.thought) {
+              if (!hasStartedThinking) {
+                controller.enqueue(encoder.encode("<thinking>"));
+                hasStartedThinking = true;
+              }
+              controller.enqueue(encoder.encode(part.text));
+            } else {
+              if (hasStartedThinking && !hasFinishedThinking) {
+                controller.enqueue(encoder.encode("</thinking>"));
+                hasFinishedThinking = true;
+              }
+              // If the part is just text, send it through.
+              // If it's something else (like tool output), we might want to handle or ignore.
+              // For now, assuming text content is what we want.
+              if (part.text) {
+                controller.enqueue(encoder.encode(part.text));
+              }
+            }
+          }
         }
+
+        // If we ended with thoughts but no content followed (unlikely but possible)
+        if (hasStartedThinking && !hasFinishedThinking) {
+            controller.enqueue(encoder.encode("</thinking>"));
+        }
+
         controller.close();
       },
     });

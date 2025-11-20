@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 export default function Home() {
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
+  const [thinking, setThinking] = useState("");
   const [loading, setLoading] = useState(false);
   const [dots, setDots] = useState("");
 
@@ -25,6 +26,7 @@ export default function Home() {
       return;
     }
     setResult("");
+    setThinking("");
     setLoading(true);
 
     const res = await fetch("/api/generate", {
@@ -43,12 +45,28 @@ export default function Home() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let fullText = "";
+      
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
         fullText += chunk;
-        setResult((prev) => prev + chunk); // update UI progressively
+
+        // Parse the <thinking> block
+        const thinkingMatch = fullText.match(/<thinking>([\s\S]*?)<\/thinking>/);
+        
+        if (thinkingMatch) {
+          // If we have a complete thinking block, separate it
+          setThinking(thinkingMatch[1].trim());
+          setResult(fullText.replace(/<thinking>[\s\S]*?<\/thinking>/, "").trim());
+        } else if (fullText.includes("<thinking>")) {
+          // If we are currently streaming the thinking block
+          const start = fullText.indexOf("<thinking>") + 10;
+          setThinking(fullText.substring(start).trim());
+        } else {
+          // Standard content (or if tags are missing)
+          setResult(fullText);
+        }
       }
     } finally {
       setLoading(false);
@@ -81,6 +99,18 @@ export default function Home() {
         >
           {result}
         </pre>
+      )}
+
+      {/* Thinking Box - Rendered after result to show below it */}
+      {thinking && (
+        <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <h2 className="text-sm font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wide mb-2">
+            Thinking Process
+          </h2>
+          <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap text-sm italic">
+            {thinking}
+          </p>
+        </div>
       )}
     </main>
   );
